@@ -42,20 +42,19 @@ boolean isConnected = hikariProxy.testConnection();
 
 Example Transactions using:
 ```java
-public void save(boolean async, HikariProxy proxy, Player player) {
-    HikariTransactionManager transactionManager = proxy.createTransactionManager();
+HikariTransactionManager transactionManager = hikariProxy.createTransactionManager();
+boolean async = true;
+```
 
-    transactionManager.beginTransaction(async)
-            .push(TransactionExecuteType.UPDATE, "insert into `users` (`name`, `age`) values (?, ?)", player.getName(), player.getAge())
-            .endpointTransaction()
-            .commit();
-}
+```java
+transactionManager.beginTransaction(async)
+        .push(TransactionExecuteType.UPDATE, "insert into `users` (`name`, `age`) values (?, ?)", player.getName(), player.getAge())
+        .endpointTransaction()
+        .commit();
 ```
 
 Example ORM using:
 ```java
-boolean async = true;
-
 List<Player> players = transactionManager.beginTransaction(async)
         .push(TransactionExecuteType.FETCH, "select * from `users` limit 5")
         .endpointTransaction()
