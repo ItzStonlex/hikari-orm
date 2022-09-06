@@ -18,7 +18,6 @@ public class HikariTransactionsTest extends HikariTester {
 
         transactionManager.beginTransaction(false)
                 .push(TransactionExecuteType.UPDATE, "create table `users` (`name` varchar(255) not null, `age` int not null)")
-                .endpointTransaction()
                 .commit();
 
         transactionManager.beginTransaction(true)
@@ -26,8 +25,6 @@ public class HikariTransactionsTest extends HikariTester {
                 .push(TransactionExecuteType.FETCH, "select `age` from `users` where `name`=?", "Misha Leyn")
 
                 .consumeResponse(resultSet -> log(resultSet.getFetchSize()))
-
-                .endpointTransaction()
                 .commit();
     }
 

@@ -5,17 +5,17 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class TransactionCache {
 
-    private final Map<Integer, HikariTransaction> cache = new ConcurrentHashMap<>();
+    private final Map<Integer, Query> cache = new ConcurrentHashMap<>();
 
-    public boolean contains(HikariTransaction transaction) {
-        return cache.containsKey(transaction.hashCode());
+    public boolean contains(Query query) {
+        return cache.containsKey(query.hashCode());
     }
 
-    public void push(HikariTransaction transaction) {
-        cache.put(transaction.hashCode(), transaction);
+    public void push(Query query) {
+        cache.put(query.hashCode(), query);
     }
 
-    public HikariTransaction peek(int hashCode) {
+    public Query peek(int hashCode) {
         return cache.get(hashCode);
     }
 

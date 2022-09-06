@@ -10,10 +10,11 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-@Getter
+@Getter(AccessLevel.PACKAGE)
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)
 public class HikariTransaction {
@@ -21,10 +22,13 @@ public class HikariTransaction {
     private static final ExecutorService CACHED_POOL
             = Executors.newCachedThreadPool();
 
-    private final boolean async;
+    private boolean async;
+
+    private TransactionCache transactionCache;
 
     private HikariProxy hikariProxy;
-    private Queue<Query> queryQueue = new ConcurrentLinkedDeque<>();
+
+    private Queue<Query> queryQueue = new ConcurrentLinkedQueue<>();
 
     @NonFinal
     private int hashCode;
@@ -34,8 +38,14 @@ public class HikariTransaction {
     private HikariResponseConsumer responseConsumer;
 
     public void push(TransactionExecuteType type, String sql, Object... elements) {
-        Query query = new Query(type, sql, elements);
-        query.create();
+        Query query = transactionCache.peek(Query.hash(type, sql));
+
+        if (query == null) {
+            query = new Query(type, sql, elements);
+            query.create(hikariProxy);
+
+            transactionCache.push(query);
+        }
 
         queryQueue.offer(query);
 
@@ -70,7 +80,7 @@ public class HikariTransaction {
             }
 
             hikariProxy.commit();
-            flush();
+            queryQueue.clear();
         };
 
         if (async) {
@@ -79,10 +89,6 @@ public class HikariTransaction {
         else {
             task.run();
         }
-    }
-
-    public void flush() {
-        queryQueue.clear();
     }
 
     @Override
@@ -97,62 +103,5 @@ public class HikariTransaction {
         }
 
         return false;
-    }
-
-    @Getter
-    @ToString
-    @RequiredArgsConstructor
-    @FieldDefaults(makeFinal = true)
-    class Query {
-
-        @ToString.Include
-        private TransactionExecuteType executeType;
-
-        @ToString.Include
-        private String query;
-        @ToString.Include
-        private Object[] elements;
-
-        @NonFinal
-        private PreparedStatement statement;
-
-        @SneakyThrows
-        public void create() {
-            statement = hikariProxy.createStatement(query);
-            statement.setPoolable(true);
-        }
-
-        public ResultSet execute()
-        throws SQLException {
-
-            for (int idx = 1; idx <= elements.length; idx++) {
-                Object obj = elements[idx - 1];
-
-                if (obj != null) {
-                    statement.setObject(idx, obj);
-
-                } else {
-
-                    statement.setNull(idx, Types.NULL);
-                }
-            }
-
-            statement.closeOnCompletion();
-            return executeType.execute(statement, query);
-        }
-
-        @Override
-        public int hashCode() {
-            return executeType.hashCode() & query.hashCode();
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj instanceof Query) {
-                return obj.hashCode() == hashCode();
-            }
-
-            return false;
-        }
     }
 }

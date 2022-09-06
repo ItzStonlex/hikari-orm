@@ -15,21 +15,7 @@ public final class HikariTransactionManager {
     private HikariTransaction currentTransaction;
 
     public HikariTransactionManager beginTransaction(boolean async) {
-        currentTransaction = new HikariTransaction(async, hikariProxy);
-        return this;
-    }
-
-    public HikariTransactionManager endpointTransaction() {
-        Objects.requireNonNull(currentTransaction, "transaction");
-
-        synchronized (transactionCache) {
-            if (transactionCache.contains(currentTransaction)) {
-
-                currentTransaction.flush();
-                currentTransaction = transactionCache.peek(currentTransaction.hashCode());
-            }
-        }
-
+        currentTransaction = new HikariTransaction(async, transactionCache, hikariProxy);
         return this;
     }
 
