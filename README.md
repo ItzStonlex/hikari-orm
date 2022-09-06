@@ -58,10 +58,17 @@ transactionManager.beginTransaction(async)
 Example ORM using:
 ```java
 List<Player> players = transactionManager.beginTransaction(async)
-        .push(TransactionExecuteType.FETCH, "SELECT * FROM `users` LIMIT 5")
+        .push(TransactionExecuteType.FETCH, "SELECT * FROM `users` LIMIT 3")
         .asStream(Player.class)
         .mapToList()
         .toList().join();
+```
+
+Players-List Logger Output:
+```
+ID: 1 | UUID: 44dbc8fb-afe0-4592-b653-5defcbb6201f | Name: Misha
+ID: 2 | UUID: df3419e9-ae0b-4ade-9d4c-ac1fb60c7fd7 | Name: Egor
+ID: 3 | UUID: e1e26bfd-d827-4c7d-9ba8-4fcd80193df8 | Name: Sergey
 ```
 
 ---
