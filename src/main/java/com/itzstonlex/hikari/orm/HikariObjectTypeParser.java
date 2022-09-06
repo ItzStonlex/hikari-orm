@@ -19,6 +19,14 @@ public final class HikariObjectTypeParser {
     private final Gson googleJson = new Gson();
     private final ObjectMapper jacksonMapper = new ObjectMapper();
 
+    public Object fromJson(String json) {
+        return googleJson.fromJson(json, Object.class);
+    }
+
+    public JsonObject parseEntries(Object source) {
+        return JsonParser.parseString(googleJson.toJson(source)).getAsJsonObject();
+    }
+
     public Set<String> parseLabels(Class<?> type) {
         return Arrays.stream(type.getDeclaredFields()).map(Field::getName).collect(Collectors.toSet());
     }

@@ -57,10 +57,25 @@ transactionManager.beginTransaction(async)
 
 Example ORM using:
 ```java
-List<Player> players = transactionManager.beginTransaction(async)
-        .push(TransactionExecuteType.FETCH, "SELECT * FROM `users` LIMIT 3")
+List<Player> playersToPush = Arrays.asList(
+        new Player(104, UUID.randomUUID(), "Misha"),
+        new Player(12, UUID.randomUUID(), "Egor"),
+        new Player(53, UUID.randomUUID(), "Sergey"),
+        new Player(41, UUID.randomUUID(), "Nikolay")
+);
+
+transactionManager.beginTransaction(false)
         .asStream(Player.class)
         .mapToList()
+        .push(playersToPush, "into users")
+        .commit();
+```
+```java
+List<Player> players = transactionManager.beginTransaction(async)
+        .push(TransactionExecuteType.FETCH, "SELECT * FROM `users`")
+        .asStream(Player.class)
+        .mapToList()
+        .limit(3)
         .toList();
 ```
 
