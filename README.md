@@ -18,7 +18,7 @@ Object-Relational Mapping Technology By HikariCP
 
 ## WHAT IS THIS?
 
-This repository is built on the third party library `HikariCP (com.zaxxer:HikariCP)`.
+This repository is built on the third library `HikariCP (com.zaxxer:HikariCP)`.
 
 All requests are performed using transactions, and ORM (Object-Relational Mapping)
 technology is also integrated into it
