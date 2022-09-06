@@ -48,7 +48,10 @@ boolean async = true;
 
 ```java
 transactionManager.beginTransaction(async)
-        .push(TransactionExecuteType.UPDATE, "INSERT INTO `users` (`name`, `age`) VALUES (?, ?)", player.getName(), player.getAge())
+        .push(TransactionExecuteType.UPDATE, "INSERT INTO `users` VALUES (?, ?, ?)", "44dbc8fb-afe0-4592-b653-5defcbb6201f", "Misha")
+        .push(TransactionExecuteType.UPDATE, "INSERT INTO `users` VALUES (?, ?, ?)", "df3419e9-ae0b-4ade-9d4c-ac1fb60c7fd7", "Egor")
+        .push(TransactionExecuteType.UPDATE, "INSERT INTO `users` VALUES (?, ?, ?)", "e1e26bfd-d827-4c7d-9ba8-4fcd80193df8", "Sergey")
+        .push(TransactionExecuteType.UPDATE, "INSERT INTO `users` VALUES (?, ?, ?)", "b48a79d0-5da2-4caf-a92b-23626628b0f4", "Nikolay")
         .commit();
 ```
 
