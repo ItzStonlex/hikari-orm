@@ -32,6 +32,11 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
         throw new UnsupportedOperationException();
     }
 
+    @Override
+    public T toObject() {
+        throw new UnsupportedOperationException();
+    }
+
     public CompletableFuture<List<T>> toListFuture() {
         CompletableFuture<List<T>> completableFuture = new CompletableFuture<>();
 
@@ -58,5 +63,9 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
 
         super.transaction.commit();
         return completableFuture;
+    }
+
+    public List<T> toList() {
+        return toListFuture().join();
     }
 }

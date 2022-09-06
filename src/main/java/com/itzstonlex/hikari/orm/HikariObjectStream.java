@@ -33,4 +33,8 @@ public class HikariObjectStream<T> {
         return completableFuture;
     }
 
+    public T toObject() {
+        return toObjectFuture().join();
+    }
+
 }
