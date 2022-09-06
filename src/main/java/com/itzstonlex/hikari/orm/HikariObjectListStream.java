@@ -29,12 +29,12 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
 
     @Override
     public CompletableFuture<T> toObjectFuture() {
-        throw new UnsupportedOperationException();
+        return mapFirst().toObjectFuture();
     }
 
     @Override
     public T toObject() {
-        throw new UnsupportedOperationException();
+        return mapFirst().toObject();
     }
 
     public CompletableFuture<List<T>> toListFuture() {
