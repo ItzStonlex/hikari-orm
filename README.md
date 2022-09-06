@@ -48,7 +48,7 @@ boolean async = true;
 
 ```java
 transactionManager.beginTransaction(async)
-        .push(TransactionExecuteType.UPDATE, "insert into `users` (`name`, `age`) values (?, ?)", player.getName(), player.getAge())
+        .push(TransactionExecuteType.UPDATE, "INSERT INTO `users` (`name`, `age`) VALUES (?, ?)", player.getName(), player.getAge())
         .endpointTransaction()
         .commit();
 ```
@@ -56,7 +56,7 @@ transactionManager.beginTransaction(async)
 Example ORM using:
 ```java
 List<Player> players = transactionManager.beginTransaction(async)
-        .push(TransactionExecuteType.FETCH, "select * from `users` limit 5")
+        .push(TransactionExecuteType.FETCH, "SELECT * FROM `users` LIMIT 5")
         .endpointTransaction()
 
         .asStream(Player.class)
