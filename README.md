@@ -64,7 +64,7 @@ List<Player> playersToPush = Arrays.asList(
         new Player(41, UUID.randomUUID(), "Nikolay")
 );
 
-transactionManager.beginTransaction(false)
+transactionManager.beginTransaction(async)
         .asStream(Player.class)
         .mapToList()
         .push(playersToPush, "into users")
