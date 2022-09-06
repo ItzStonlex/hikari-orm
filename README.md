@@ -81,9 +81,9 @@ List<Player> players = transactionManager.beginTransaction(async)
 
 Players-List Logger Output:
 ```
-ID: 1 | UUID: 44dbc8fb-afe0-4592-b653-5defcbb6201f | Name: Misha
-ID: 2 | UUID: df3419e9-ae0b-4ade-9d4c-ac1fb60c7fd7 | Name: Egor
-ID: 3 | UUID: e1e26bfd-d827-4c7d-9ba8-4fcd80193df8 | Name: Sergey
+ID: 104 | UUID: d83c6fa0-ff21-42f9-bc73-bcc8e933a36e | Name: Misha
+ID: 12 | UUID: e546bfb5-5796-4b0c-a0c8-52fbe834edbb | Name: Egor
+ID: 53 | UUID: 5c72c7a3-168c-47b9-8060-adea5c7ec859 | Name: Sergey
 ```
 
 ---
