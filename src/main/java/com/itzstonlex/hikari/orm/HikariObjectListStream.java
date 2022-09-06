@@ -100,7 +100,7 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
         return this;
     }
 
-    public HikariObjectListStream<T> pushFirst(T source, String nativeQuery) {
+    public HikariObjectListStream<T> pushOne(T source, String nativeQuery) {
         super.push(source, nativeQuery);
         return this;
     }
