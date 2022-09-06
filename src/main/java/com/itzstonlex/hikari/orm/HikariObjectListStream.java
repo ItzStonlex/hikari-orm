@@ -14,21 +14,25 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
         super(cls, transaction);
     }
 
+    public HikariObjectStream<T> mapFirst() {
+        return new HikariObjectStream<>(cls, transaction);
+    }
+
     public HikariObjectListStream<T> limit(int limit) {
         this.limit = limit;
         return this;
     }
 
-    public HikariObjectListStream<T> noLimit() {
+    public HikariObjectListStream<T> unlimit() {
         return limit(0);
     }
 
     @Override
-    public CompletableFuture<T> toSingleton() {
+    public CompletableFuture<T> toObjectFuture() {
         throw new UnsupportedOperationException();
     }
 
-    public CompletableFuture<List<T>> toList() {
+    public CompletableFuture<List<T>> toListFuture() {
         CompletableFuture<List<T>> completableFuture = new CompletableFuture<>();
 
         super.transaction.setResponseConsumer(resultSet -> {

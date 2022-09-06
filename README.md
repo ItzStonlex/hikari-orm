@@ -61,7 +61,8 @@ List<Player> players = transactionManager.beginTransaction(async)
         .push(TransactionExecuteType.FETCH, "SELECT * FROM `users` LIMIT 3")
         .asStream(Player.class)
         .mapToList()
-        .toList().join();
+        .toListFuture()
+        .join();
 ```
 
 Players-List Logger Output:

@@ -45,7 +45,7 @@ public class HikariOrmTest extends HikariTester {
                 .asStream(Player.class)
                 .mapToList()
                 .limit(3)
-                .toList()
+                .toListFuture()
                 .join();
 
         for (Player player : players) {

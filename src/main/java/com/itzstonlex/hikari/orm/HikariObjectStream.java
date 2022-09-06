@@ -1,12 +1,9 @@
 package com.itzstonlex.hikari.orm;
 
 import com.itzstonlex.hikari.HikariTransaction;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.Setter;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.function.Consumer;
 
 @RequiredArgsConstructor
 public class HikariObjectStream<T> {
@@ -17,15 +14,11 @@ public class HikariObjectStream<T> {
     protected final Class<T> cls;
     protected final HikariTransaction transaction;
 
-    @Getter
-    @Setter
-    private Consumer<HikariTransaction> whenCompleted;
-
     public HikariObjectListStream<T> mapToList() {
         return new HikariObjectListStream<>(cls, transaction);
     }
 
-    public CompletableFuture<T> toSingleton() {
+    public CompletableFuture<T> toObjectFuture() {
         CompletableFuture<T> completableFuture = new CompletableFuture<>();
 
         transaction.setResponseConsumer(resultSet -> {
