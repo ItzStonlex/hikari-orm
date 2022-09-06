@@ -42,7 +42,7 @@ boolean isConnected = hikariProxy.testConnection();
 
 Example Transactions using:
 ```java
-void save(boolean async, HikariProxy proxy, Player player) {
+public void save(boolean async, HikariProxy proxy, Player player) {
     HikariTransactionManager transactionManager = proxy.createTransactionManager();
 
     transactionManager.beginTransaction(async)
