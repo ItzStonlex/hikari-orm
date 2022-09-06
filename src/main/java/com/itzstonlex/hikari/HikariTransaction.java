@@ -1,34 +1,43 @@
 package com.itzstonlex.hikari;
 
-import lombok.*;
+import lombok.AccessLevel;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
 import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 
-import java.sql.PreparedStatement;
+import java.io.Closeable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedDeque;
-import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 @Getter(AccessLevel.PACKAGE)
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true)
-public class HikariTransaction {
+public class HikariTransaction implements Closeable {
 
     private static final ExecutorService CACHED_POOL
             = Executors.newCachedThreadPool();
 
     private boolean async;
 
-    private TransactionCache transactionCache;
+    @NonFinal
+    private boolean closed;
+
+    private TransactionCache parentCache;
 
     private HikariProxy hikariProxy;
 
-    private Queue<Query> queryQueue = new ConcurrentLinkedQueue<>();
+    @NonFinal
+    private TransactionCache localCache = new TransactionCache();
+
+    @NonFinal
+    private List<Query> queue = new ArrayList<>();
 
     @NonFinal
     private int hashCode;
@@ -38,16 +47,22 @@ public class HikariTransaction {
     private HikariResponseConsumer responseConsumer;
 
     public void push(TransactionExecuteType type, String sql, Object... elements) {
-        Query query = transactionCache.peek(Query.hash(type, sql));
-
-        if (query == null) {
-            query = new Query(type, sql, elements);
-            query.create(hikariProxy);
-
-            transactionCache.push(query);
+        if (isClosed()) {
+            throw new IllegalArgumentException("transaction closed");
         }
 
-        queryQueue.offer(query);
+        Query query = localCache.peek(Query.hash(type, sql));
+
+        if (query == null) {
+
+            query = new Query(type, sql);
+            query.create(hikariProxy);
+
+            localCache.push(query);
+        }
+
+        query.setElements(elements);
+        queue.add(query.clone());
 
         int queryHash = query.hashCode();
 
@@ -60,11 +75,14 @@ public class HikariTransaction {
     }
 
     public void commit() {
+        if (isClosed()) {
+            throw new IllegalArgumentException("transaction closed");
+        }
+
         Runnable task = () -> {
-            Query query;
+            Exception error = null;
 
-            while ((query = queryQueue.poll()) != null) {
-
+            for (Query query : queue) {
                 try (ResultSet response = query.execute()) {
 
                     if (responseConsumer != null) {
@@ -72,15 +90,19 @@ public class HikariTransaction {
                     }
                 }
                 catch (SQLException exception) {
-                    hikariProxy.rollback();
-                    exception.printStackTrace();
-
-                    return;
+                    error = exception;
+                    break;
                 }
             }
 
-            hikariProxy.commit();
-            queryQueue.clear();
+            if (error == null) {
+                hikariProxy.commit();
+            }
+            else {
+                error.printStackTrace();
+            }
+
+            this.close();
         };
 
         if (async) {
@@ -89,6 +111,23 @@ public class HikariTransaction {
         else {
             task.run();
         }
+    }
+
+    @Override
+    public void close() {
+        if (isClosed()) {
+            throw new IllegalArgumentException("transaction already closed");
+        }
+
+        parentCache.pushAll(localCache);
+
+        localCache.clear();
+        localCache = null;
+
+        queue.clear();
+        queue = null;
+
+        closed = true;
     }
 
     @Override

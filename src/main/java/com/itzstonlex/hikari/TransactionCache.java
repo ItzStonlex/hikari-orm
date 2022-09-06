@@ -1,16 +1,19 @@
 package com.itzstonlex.hikari;
 
+import java.util.Iterator;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class TransactionCache {
 
-    private static final int MAX_CACHE_SIZE = 1024 * 1024;
+    private static final int MAX_CACHE_SIZE = (1024 * 1024);
 
     private final Map<Integer, Query> cache = new ConcurrentHashMap<>();
 
     private void checkSize() {
         if (cache.size() >= MAX_CACHE_SIZE) {
+
+            cache.values().forEach(Query::close);
             cache.clear();
         }
     }
@@ -26,6 +29,14 @@ public class TransactionCache {
 
     public Query peek(int hashCode) {
         return cache.get(hashCode);
+    }
+
+    public Iterator<Query> iterator() {
+        return cache.values().iterator();
+    }
+
+    public void clear() {
+        cache.clear();
     }
 
 }
