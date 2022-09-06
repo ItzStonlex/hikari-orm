@@ -67,7 +67,7 @@ List<Player> playersToPush = Arrays.asList(
 transactionManager.beginTransaction(async)
         .asStream(Player.class)
         .mapToList()
-        .push(playersToPush, "into users")
+        .pushAll(playersToPush, "into users")
         .commit();
 ```
 ```java

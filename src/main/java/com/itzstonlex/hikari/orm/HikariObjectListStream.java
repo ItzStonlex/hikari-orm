@@ -75,7 +75,7 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
         return toListFuture().join();
     }
 
-    public HikariObjectListStream<T> push(List<T> sourcesList, String nativeQuery) {
+    public HikariObjectListStream<T> pushAll(List<T> sourcesList, String nativeQuery) {
         StringBuilder queryBuilder = new StringBuilder("INSERT ").append(nativeQuery).append(" ");
 
         for (T source : sourcesList) {
@@ -97,6 +97,11 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
         String query = queryBuilder.toString();
         transaction.push(TransactionExecuteType.UPDATE, query.substring(0, query.length() - 2));
 
+        return this;
+    }
+
+    public HikariObjectListStream<T> pushFirst(T source, String nativeQuery) {
+        super.push(source, nativeQuery);
         return this;
     }
 }

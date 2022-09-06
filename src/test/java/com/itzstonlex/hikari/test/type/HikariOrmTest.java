@@ -37,7 +37,7 @@ public class HikariOrmTest extends HikariTester {
         transactionManager.beginTransaction(false)
                 .asStream(Player.class)
                 .mapToList()
-                .push(playersToPush, "into users")
+                .pushAll(playersToPush, "into users")
                 .commit();
 
         // Get 3 first players from db query.
