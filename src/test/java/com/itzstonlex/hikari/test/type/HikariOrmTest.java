@@ -45,8 +45,7 @@ public class HikariOrmTest extends HikariTester {
                 .asStream(Player.class)
                 .mapToList()
                 .limit(3)
-                .toListFuture()
-                .join();
+                .toList();
 
         for (Player player : players) {
             log("ID: %s | UUID: %s | Name: %s", player.getId(), player.getUuid(), player.getName());
