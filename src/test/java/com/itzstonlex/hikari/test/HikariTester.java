@@ -4,7 +4,11 @@ import com.itzstonlex.hikari.HikariProxy;
 import lombok.NonNull;
 import lombok.Setter;
 
+import java.text.SimpleDateFormat;
+
 public abstract class HikariTester {
+
+    private static final SimpleDateFormat LOGGER_DATE_FORMAT = new SimpleDateFormat("HH:mm:ss.SSS");
 
     @Setter
     private static HikariTester provider;
@@ -14,7 +18,7 @@ public abstract class HikariTester {
     }
 
     public static void log(Object message, Object... replacements) {
-        System.out.println("[Logger]: " + String.format(message.toString(), replacements));
+        System.out.printf("[%s]: %s%n", LOGGER_DATE_FORMAT.format(System.currentTimeMillis()), String.format(message.toString(), replacements));
     }
 
     public static HikariProxy createHikariProxy() {
