@@ -62,10 +62,10 @@ transactionManager.beginTransaction(async)
 Example ORM using:
 ```java
 List<UserDao> usersList = Arrays.asList(
-        new PlayerDao(UUID.randomUUID(), "Misha"),
-        new PlayerDao(UUID.randomUUID(), "Egor"),
-        new PlayerDao(UUID.randomUUID(), "Sergey"),
-        new PlayerDao(UUID.randomUUID(), "Nikolay")
+        new UserDao(UUID.randomUUID(), "Misha"),
+        new UserDao(UUID.randomUUID(), "Egor"),
+        new UserDao(UUID.randomUUID(), "Sergey"),
+        new UserDao(UUID.randomUUID(), "Nikolay")
 );
 
 transactionManager.beginTransaction(async)
