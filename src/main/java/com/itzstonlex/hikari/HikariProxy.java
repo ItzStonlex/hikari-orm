@@ -14,7 +14,6 @@ public final class HikariProxy {
     public HikariProxy(String url, String username, String password) {
         try {
             dataSource.setLoginTimeout(3);
-            dataSource.setAutoCommit(false);
 
             dataSource.setJdbcUrl(url);
 
@@ -28,6 +27,10 @@ public final class HikariProxy {
 
     public HikariTransactionManager createTransactionManager() {
         return new HikariTransactionManager(this);
+    }
+
+    public void setAutoCommit(boolean flag) {
+        dataSource.setAutoCommit(flag);
     }
 
     public boolean testConnection() {
@@ -76,15 +79,4 @@ public final class HikariProxy {
         }
     }
 
-    public String nativeSQL(String sql) {
-        if (connection == null) {
-            testConnection();
-        }
-
-        try {
-            return connection.nativeSQL(sql);
-        } catch (SQLException exception) {
-            throw new RuntimeException(exception);
-        }
-    }
 }

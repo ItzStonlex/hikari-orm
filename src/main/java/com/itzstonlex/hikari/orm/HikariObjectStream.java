@@ -20,11 +20,11 @@ public class HikariObjectStream<T> {
     protected final Class<T> cls;
     protected final HikariTransaction transaction;
 
-    public HikariObjectListStream<T> mapToList() {
+    public synchronized HikariObjectListStream<T> mapToList() {
         return new HikariObjectListStream<>(cls, transaction);
     }
 
-    public CompletableFuture<T> toObjectFuture() {
+    public synchronized CompletableFuture<T> toObjectFuture() {
         CompletableFuture<T> completableFuture = new CompletableFuture<>();
 
         transaction.setResponseConsumer(resultSet -> {
@@ -39,11 +39,11 @@ public class HikariObjectStream<T> {
         return completableFuture;
     }
 
-    public T toObject() {
+    public synchronized T toObject() {
         return toObjectFuture().join();
     }
 
-    public HikariObjectStream<T> push(T source, String nativeQuery) {
+    public synchronized HikariObjectStream<T> push(T source, String nativeQuery) {
         JsonObject jsonObject = OBJECT_TYPE_PARSER.parseEntries(source);
 
         StringBuilder queryBuilder = new StringBuilder("INSERT ")
@@ -63,7 +63,7 @@ public class HikariObjectStream<T> {
         return this;
     }
 
-    public final void commit() {
+    public synchronized final void commit() {
         transaction.commit();
     }
 

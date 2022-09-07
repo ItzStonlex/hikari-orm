@@ -51,7 +51,12 @@ public class HikariTransaction implements Closeable {
             throw new IllegalArgumentException("transaction closed");
         }
 
-        Query query = localCache.peek(Query.hash(type, sql));
+        int queryHash = Query.hash(type, sql);
+        Query query = parentCache.peek(queryHash);
+
+        if (query == null) {
+            query = localCache.peek(queryHash);
+        }
 
         if (query == null) {
 
@@ -61,10 +66,10 @@ public class HikariTransaction implements Closeable {
             localCache.push(query);
         }
 
+        query = query.clone();
         query.setElements(elements);
-        queue.add(query.clone());
 
-        int queryHash = query.hashCode();
+        queue.add(query);
 
         if (hashCode != 0) {
             hashCode &= queryHash;
@@ -78,6 +83,8 @@ public class HikariTransaction implements Closeable {
         if (isClosed()) {
             throw new IllegalArgumentException("transaction closed");
         }
+
+        hikariProxy.setAutoCommit(false);
 
         Runnable task = () -> {
             Exception error = null;
@@ -99,6 +106,7 @@ public class HikariTransaction implements Closeable {
                 hikariProxy.commit();
             }
             else {
+                hikariProxy.rollback();
                 error.printStackTrace();
             }
 
@@ -118,6 +126,8 @@ public class HikariTransaction implements Closeable {
         if (isClosed()) {
             throw new IllegalArgumentException("transaction already closed");
         }
+
+        hikariProxy.setAutoCommit(true);
 
         parentCache.pushAll(localCache);
 

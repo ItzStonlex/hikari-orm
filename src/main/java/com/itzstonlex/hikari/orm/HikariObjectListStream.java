@@ -13,37 +13,36 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class HikariObjectListStream<T> extends HikariObjectStream<T> {
-
-    private int limit;
+    private volatile int limit;
 
     public HikariObjectListStream(Class<T> cls, HikariTransaction transaction) {
         super(cls, transaction);
     }
 
-    public HikariObjectStream<T> mapFirst() {
+    public synchronized HikariObjectStream<T> mapFirst() {
         return new HikariObjectStream<>(cls, transaction);
     }
 
-    public HikariObjectListStream<T> limit(int limit) {
+    public synchronized HikariObjectListStream<T> limit(int limit) {
         this.limit = limit;
         return this;
     }
 
-    public HikariObjectListStream<T> unlimit() {
+    public synchronized HikariObjectListStream<T> unlimit() {
         return limit(0);
     }
 
     @Override
-    public CompletableFuture<T> toObjectFuture() {
+    public synchronized CompletableFuture<T> toObjectFuture() {
         return mapFirst().toObjectFuture();
     }
 
     @Override
-    public T toObject() {
+    public synchronized T toObject() {
         return mapFirst().toObject();
     }
 
-    public CompletableFuture<List<T>> toListFuture() {
+    public synchronized CompletableFuture<List<T>> toListFuture() {
         CompletableFuture<List<T>> completableFuture = new CompletableFuture<>();
 
         super.transaction.setResponseConsumer(resultSet -> {
@@ -71,11 +70,11 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
         return completableFuture;
     }
 
-    public List<T> toList() {
+    public synchronized List<T> toList() {
         return toListFuture().join();
     }
 
-    public HikariObjectListStream<T> pushAll(List<T> sourcesList, String nativeQuery) {
+    public synchronized HikariObjectListStream<T> pushAll(List<T> sourcesList, String nativeQuery) {
         StringBuilder queryBuilder = new StringBuilder("INSERT ").append(nativeQuery).append(" ");
 
         for (T source : sourcesList) {
@@ -100,7 +99,7 @@ public class HikariObjectListStream<T> extends HikariObjectStream<T> {
         return this;
     }
 
-    public HikariObjectListStream<T> pushOne(T source, String nativeQuery) {
+    public synchronized HikariObjectListStream<T> pushOne(T source, String nativeQuery) {
         super.push(source, nativeQuery);
         return this;
     }

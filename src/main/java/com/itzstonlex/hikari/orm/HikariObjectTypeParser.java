@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 public final class HikariObjectTypeParser {
 
     private final Gson googleJson = new Gson();
+
     private final ObjectMapper jacksonMapper = new ObjectMapper();
 
     public Object fromJson(String json) {

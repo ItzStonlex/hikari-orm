@@ -42,13 +42,19 @@ public final class HikariTransactionManager {
     public void commit() {
         Objects.requireNonNull(currentTransaction, "transaction");
 
-        currentTransaction.commit();
-        currentTransaction = null;
+        synchronized (transactionCache) {
+
+            currentTransaction.commit();
+            currentTransaction = null;
+        }
     }
 
     public <T> HikariObjectStream<T> asStream(Class<T> cls) {
         Objects.requireNonNull(currentTransaction, "transaction");
-        return new HikariObjectStream<>(cls, currentTransaction);
+
+        synchronized (transactionCache) {
+            return new HikariObjectStream<>(cls, currentTransaction);
+        }
     }
 
 }
