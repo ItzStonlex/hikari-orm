@@ -29,16 +29,24 @@ public final class HikariProxy {
         return new HikariTransactionManager(this);
     }
 
-    public void setAutoCommit(boolean flag) {
-        dataSource.setAutoCommit(flag);
-    }
-
     public boolean testConnection() {
         try {
             connection = dataSource.getConnection();
             return true;
         }
         catch (SQLException exception) {
+            throw new RuntimeException(exception);
+        }
+    }
+
+    public void setAutoCommit(boolean flag) {
+        if (connection == null) {
+            testConnection();
+        }
+
+        try {
+            connection.setAutoCommit(flag);
+        } catch (SQLException exception) {
             throw new RuntimeException(exception);
         }
     }
@@ -56,12 +64,15 @@ public final class HikariProxy {
     }
 
     public Query createQuery(TransactionExecuteType executeType, String sql, Object... parameters) {
-        Query query = new Query(executeType, sql);
+        synchronized (dataSource) {
 
-        query.create(this);
-        query.setElements(parameters);
+            Query query = new Query(executeType, sql);
 
-        return query;
+            query.create(this);
+            query.setElements(parameters);
+
+            return query;
+        }
     }
 
     public void commit() {

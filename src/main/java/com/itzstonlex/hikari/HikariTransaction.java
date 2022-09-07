@@ -79,15 +79,15 @@ public class HikariTransaction implements Closeable {
         }
     }
 
-    public void commit() {
+    public synchronized void commit() {
         if (isClosed()) {
             throw new IllegalArgumentException("transaction closed");
         }
 
-        hikariProxy.setAutoCommit(false);
-
         Runnable task = () -> {
             Exception error = null;
+
+            hikariProxy.setAutoCommit(false);
 
             for (Query query : queue) {
                 try (ResultSet response = query.execute()) {
@@ -138,6 +138,8 @@ public class HikariTransaction implements Closeable {
         queue = null;
 
         closed = true;
+
+        System.gc();
     }
 
     @Override
