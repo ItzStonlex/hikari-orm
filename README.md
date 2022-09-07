@@ -55,35 +55,56 @@ transactionManager.beginTransaction(async)
         .commit();
 ```
 
+---
+
+**Object-Relational Mapping:**
+
 Example ORM using:
 ```java
-List<Player> playersToPush = Arrays.asList(
-        new Player(104, UUID.randomUUID(), "Misha"),
-        new Player(12, UUID.randomUUID(), "Egor"),
-        new Player(53, UUID.randomUUID(), "Sergey"),
-        new Player(41, UUID.randomUUID(), "Nikolay")
+List<UserDao> usersList = Arrays.asList(
+        new PlayerDao( UUID.randomUUID(), "Misha"),
+        new PlayerDao(UUID.randomUUID(), "Egor"),
+        new PlayerDao(UUID.randomUUID(), "Sergey"),
+        new PlayerDao(UUID.randomUUID(), "Nikolay")
 );
 
 transactionManager.beginTransaction(async)
-        .asStream(Player.class)
+        .asStream(UserDao.class)
         .mapToList()
-        .pushAll(playersToPush, "into users")
+        .pushAll(usersList, "into users")
         .commit();
 ```
 ```java
-List<Player> players = transactionManager.beginTransaction(async)
+List<UserDao> users = transactionManager.beginTransaction(async)
         .push(TransactionExecuteType.FETCH, "SELECT * FROM `users`")
-        .asStream(Player.class)
+        .asStream(UserDao.class)
         .mapToList()
         .limit(3)
         .toList();
 ```
 
-Players-List Logger Output:
+Users-List Logger Output:
 ```
-ID: 104 | UUID: d83c6fa0-ff21-42f9-bc73-bcc8e933a36e | Name: Misha
-ID: 12 | UUID: e546bfb5-5796-4b0c-a0c8-52fbe834edbb | Name: Egor
-ID: 53 | UUID: 5c72c7a3-168c-47b9-8060-adea5c7ec859 | Name: Sergey
+ID: 1 | UUID: d83c6fa0-ff21-42f9-bc73-bcc8e933a36e | Name: Misha
+ID: 2 | UUID: e546bfb5-5796-4b0c-a0c8-52fbe834edbb | Name: Egor
+ID: 3 | UUID: 5c72c7a3-168c-47b9-8060-adea5c7ec859 | Name: Sergey
+```
+---
+
+**Query without Transactions:**
+
+_This query type ONLY is synchronized!_
+
+Example One-Query using:
+```java
+try (Query query = hikariProxy.createQuery(TransactionExecuteType.FETCH, "show tables");
+     ResultSet resultSet = query.execute()) {
+
+    // TODO - logic with java.sql.ResultSet
+}
+catch (SQLException exception) {
+    exception.printStackTrace();
+}
 ```
 
 ---
