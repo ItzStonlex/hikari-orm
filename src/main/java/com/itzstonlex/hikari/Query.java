@@ -30,7 +30,7 @@ public class Query implements Cloneable, Closeable {
 
     @ToString.Include
     @NonFinal
-    @Setter
+    @Setter(AccessLevel.PACKAGE)
     private Object[] elements;
 
     @NonFinal

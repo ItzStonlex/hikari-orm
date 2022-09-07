@@ -55,6 +55,15 @@ public final class HikariProxy {
         }
     }
 
+    public Query createQuery(TransactionExecuteType executeType, String sql, Object... parameters) {
+        Query query = new Query(executeType, sql);
+
+        query.create(this);
+        query.setElements(parameters);
+
+        return query;
+    }
+
     public void commit() {
         if (connection == null) {
             testConnection();
